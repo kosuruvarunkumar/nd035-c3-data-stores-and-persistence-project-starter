@@ -13,7 +13,7 @@ import java.util.Set;
 public class Employee {
     @Id
     @GeneratedValue
-    private long id;
+    private Long id;
     private String name;
 
     /**

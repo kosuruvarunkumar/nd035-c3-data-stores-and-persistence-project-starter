@@ -9,7 +9,7 @@ import java.time.LocalDate;
 public class Pet {
     @Id
     @GeneratedValue
-    private long id;
+    private Long id;
     private PetType type;
     private String name;
 
