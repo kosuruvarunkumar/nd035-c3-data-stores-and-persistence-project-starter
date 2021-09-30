@@ -47,11 +47,11 @@ public class Customer {
         this.notes = notes;
     }
 
-    public List<Pet> getPetIds() {
+    public List<Pet> getPets() {
         return pets;
     }
 
-    public void setPetIds(List<Pet> pets) {
+    public void setPets(List<Pet> pets) {
         this.pets = pets;
     }
 }
