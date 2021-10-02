@@ -28,24 +28,24 @@ public class UserController {
     public CustomerDTO saveCustomer(@RequestBody CustomerDTO customerDTO){
         try{
             Customer savedCustomer = userService.saveCustomer(customerDTO);
+            customerDTO.setId(savedCustomer.getId());
         }catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.toString());
         }
         if(customerDTO.getPetIds() == null) {
-            customerDTO.setPetIds(new ArrayList<Long>());
+            customerDTO.setPetIds(new ArrayList<>());
         }
         return customerDTO;
     }
 
     @GetMapping("/customer")
     public List<CustomerDTO> getAllCustomers(){
-        List<CustomerDTO> customers = userService.findAllCustomers();
-        return customers;
+        return userService.findAllCustomers();
     }
 
     @GetMapping("/customer/pet/{petId}")
     public CustomerDTO getOwnerByPet(@PathVariable long petId){
-        CustomerDTO customerDTO = new CustomerDTO();
+        CustomerDTO customerDTO;
         try{
             customerDTO = userService.findOwnerByPet(petId);
         } catch(Exception e) {

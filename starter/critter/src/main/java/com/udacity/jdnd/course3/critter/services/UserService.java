@@ -24,7 +24,6 @@ public class UserService {
         Customer customer = new Customer();
         List<Pet> petList = new ArrayList<>();
         List<Long> petIds = customerDTO.getPetIds();
-        customer.setId(customerDTO.getId());
         customer.setName(customerDTO.getName());
         if(petIds != null) {
             for(Long id : petIds) {
@@ -52,7 +51,7 @@ public class UserService {
             customerDTO.setPhoneNumber(customer.getPhoneNumber());
             customerDTO.setName(customer.getName());
             customerDTO.setNotes(customer.getNotes());
-
+            customerDTO.setId(customer.getId());
             customerDTOS.add(customerDTO);
         }
 
@@ -61,7 +60,7 @@ public class UserService {
 
     public CustomerDTO findOwnerByPet(Long petID) {
         Optional<Pet> pet = petRepository.findById(petID);
-        Customer customer = new Customer();
+        Customer customer;
         CustomerDTO customerDTO = new CustomerDTO();
         if(pet.isPresent()) {
             customer = pet.get().getCustomer();
@@ -71,7 +70,7 @@ public class UserService {
         customerDTO.setNotes(customer.getNotes());
         customerDTO.setName(customer.getName());
         customerDTO.setPhoneNumber(customer.getPhoneNumber());
-        customerDTO.setPetIds(customerDTO.getPetIds());
+        customerDTO.setPetIds(getPetIds(customer.getPets()));
         customerDTO.setId(customer.getId());
 
         return customerDTO;

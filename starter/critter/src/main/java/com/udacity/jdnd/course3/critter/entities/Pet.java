@@ -13,12 +13,12 @@ public class Pet {
     private PetType type;
     private String name;
 
-    @OneToOne
+    @ManyToOne
     private Customer customer;
     private LocalDate birthDate;
     private String notes;
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
