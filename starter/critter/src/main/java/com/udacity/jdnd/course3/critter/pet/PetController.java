@@ -21,7 +21,7 @@ public class PetController {
 
     @PostMapping
     public PetDTO savePet(@RequestBody PetDTO petDTO) {
-        return getPetDTO(petService.savePet(getEntity(petDTO), petDTO.getOwnerId()));
+        return getPetDTO(petService.savePet(getPet(petDTO), petDTO.getOwnerId()));
     }
 
     @GetMapping("/{petId}")
@@ -58,7 +58,7 @@ public class PetController {
         return petDTOS;
     }
 
-    public Pet getEntity(PetDTO petDTO) {
+    private Pet getPet(PetDTO petDTO) {
         Pet pet = new Pet();
         pet.setNotes(petDTO.getNotes());
         pet.setType(petDTO.getType());

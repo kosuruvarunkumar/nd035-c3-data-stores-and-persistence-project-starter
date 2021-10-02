@@ -1,6 +1,9 @@
 package com.udacity.jdnd.course3.critter.user;
 
 import com.udacity.jdnd.course3.critter.entities.Customer;
+import com.udacity.jdnd.course3.critter.entities.Employee;
+import com.udacity.jdnd.course3.critter.entities.Pet;
+import com.udacity.jdnd.course3.critter.pet.PetDTO;
 import com.udacity.jdnd.course3.critter.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,42 +30,41 @@ public class UserController {
     @PostMapping("/customer")
     public CustomerDTO saveCustomer(@RequestBody CustomerDTO customerDTO){
         try{
-            Customer savedCustomer = userService.saveCustomer(customerDTO);
-            customerDTO.setId(savedCustomer.getId());
+            Customer savedCustomer = userService.saveCustomer(getCustomer(customerDTO), customerDTO.getPetIds());
+            return getCustomerDTO(savedCustomer);
         }catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.toString());
         }
-        if(customerDTO.getPetIds() == null) {
-            customerDTO.setPetIds(new ArrayList<>());
-        }
-        return customerDTO;
     }
 
     @GetMapping("/customer")
     public List<CustomerDTO> getAllCustomers(){
-        return userService.findAllCustomers();
+        List<Customer> customers = userService.findAllCustomers();
+        List<CustomerDTO> customerDTOS = new ArrayList<>();
+        for(Customer customer : customers) {
+            customerDTOS.add(getCustomerDTO(customer));
+        }
+        return customerDTOS;
     }
 
     @GetMapping("/customer/pet/{petId}")
     public CustomerDTO getOwnerByPet(@PathVariable long petId){
-        CustomerDTO customerDTO;
         try{
-            customerDTO = userService.findOwnerByPet(petId);
+            return getCustomerDTO(userService.findOwnerByPet(petId));
         } catch(Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.toString());
         }
-        return customerDTO;
     }
 
     @PostMapping("/employee")
     public EmployeeDTO saveEmployee(@RequestBody EmployeeDTO employeeDTO) {
-        return userService.saveEmployee(employeeDTO);
+        return getEmployeeDTO(userService.saveEmployee(getEmployee(employeeDTO)));
     }
 
     @PostMapping("/employee/{employeeId}")
     public EmployeeDTO getEmployee(@PathVariable long employeeId) {
         try{
-            return userService.getEmployee(employeeId);
+            return getEmployeeDTO(userService.getEmployee(employeeId));
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.toString());
         }
@@ -79,7 +81,54 @@ public class UserController {
 
     @GetMapping("/employee/availability")
     public List<EmployeeDTO> findEmployeesForService(@RequestBody EmployeeRequestDTO employeeDTO) {
-        return userService.findEmployeesForService(employeeDTO.getDate(), employeeDTO.getSkills());
+        List<EmployeeDTO> employeeDTOS = new ArrayList<>();
+        for(Employee employee : userService.findEmployeesForService(employeeDTO.getDate(), employeeDTO.getSkills())) {
+            employeeDTOS.add(getEmployeeDTO(employee));
+        }
+
+        return employeeDTOS;
+    }
+
+    private Customer getCustomer(CustomerDTO customerDTO) {
+        Customer customer = new Customer();
+        customer.setNotes(customerDTO.getNotes());
+        customer.setPhoneNumber(customerDTO.getPhoneNumber());
+        customer.setName(customerDTO.getName());
+
+        return customer;
+    }
+
+    private CustomerDTO getCustomerDTO(Customer customer) {
+        CustomerDTO customerDTO = new CustomerDTO();
+        customerDTO.setId(customer.getId());
+        customerDTO.setName(customer.getName());
+        customerDTO.setNotes(customer.getNotes());
+        customerDTO.setPhoneNumber(customer.getPhoneNumber());
+        List<Long> petIDs = new ArrayList<>();
+        for(Pet pet: customer.getPets()) {
+            petIDs.add(pet.getId());
+        }
+        customerDTO.setPetIds(petIDs);
+
+        return customerDTO;
+    }
+
+    private EmployeeDTO getEmployeeDTO(Employee employee) {
+        EmployeeDTO employeeDTO = new EmployeeDTO();
+        employeeDTO.setId(employee.getId());
+        employeeDTO.setName(employee.getName());
+        employeeDTO.setSkills(employee.getSkills());
+        employeeDTO.setDaysAvailable(employee.getDaysAvailable());
+
+        return employeeDTO;
+    }
+    private Employee getEmployee(EmployeeDTO employeeDTO) {
+        Employee employee = new Employee();
+        employee.setSkills(employeeDTO.getSkills());
+        employee.setDaysAvailable(employeeDTO.getDaysAvailable());
+        employee.setName(employeeDTO.getName());
+
+        return employee;
     }
 
 }
