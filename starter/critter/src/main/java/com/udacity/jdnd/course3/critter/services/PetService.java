@@ -21,13 +21,8 @@ public class PetService {
     @Autowired
     CustomerRepository customerRepository;
 
-    public PetDTO savePet(PetDTO petDTO) {
-        Pet pet = new Pet();
-        pet.setBirthDate(petDTO.getBirthDate());
-        pet.setName(petDTO.getName());
-        pet.setType(petDTO.getType());
-        pet.setNotes(petDTO.getNotes());
-        Optional<Customer> customer = customerRepository.findById(petDTO.getOwnerId());
+    public Pet savePet(Pet pet, Long ownerID) {
+        Optional<Customer> customer = customerRepository.findById(ownerID);
         List<Pet> pets;
         if(customer.isPresent()) {
             pet.setCustomer(customer.get());
@@ -38,55 +33,32 @@ public class PetService {
         pet = petRepository.save(pet);
         pets.add(pet);
         customer.get().setPets(pets);
-        petDTO.setId(pet.getId());
-        return getPetDTO(pet);
+        return pet;
     }
 
-    public PetDTO getPetById(Long id) {
+    public Pet getPetById(Long id) {
         Optional<Pet> pet = petRepository.findById(id);
-        PetDTO petDTO;
         if(pet.isPresent()) {
-            petDTO = getPetDTO(pet.get());
+            return pet.get();
         } else {
             throw new RuntimeException("Pet with id: "+ id+" not found");
         }
 
-        return petDTO;
+
     }
 
-    public List<PetDTO> getAllPets() {
-        List<PetDTO> petDTOS = new ArrayList<>();
-        Iterable<Pet> pets = petRepository.findAll();
-        for(Pet pet: pets) {
-            petDTOS.add(getPetDTO(pet));
-        }
-
-        return petDTOS;
+    public List<Pet> getAllPets() {
+        return (List<Pet>) petRepository.findAll();
     }
 
-    public List<PetDTO> getPetsByOwnerID(Long ownerID) {
+    public List<Pet> getPetsByOwnerID(Long ownerID) {
         Optional<Customer> customer = customerRepository.findById(ownerID);
-        List<PetDTO> petDTOS = new ArrayList<>();
+        List<Pet> pets;
         if(customer.isPresent()) {
-            List<Pet> pets = customer.get().getPets();
-            for(Pet pet : pets) {
-                petDTOS.add(getPetDTO(pet));
-            }
+            pets = customer.get().getPets();
         } else {
             throw new RuntimeException("Owner id: "+ownerID+" not found");
         }
-        return petDTOS;
+        return pets;
     }
-
-    private PetDTO getPetDTO(Pet pet) {
-        PetDTO petDTO= new PetDTO();
-        petDTO.setId(pet.getId());
-        petDTO.setBirthDate(pet.getBirthDate());
-        petDTO.setType(pet.getType());
-        petDTO.setName(pet.getName());
-        petDTO.setOwnerId(pet.getCustomer().getId());
-
-        return petDTO;
-    }
-
 }
